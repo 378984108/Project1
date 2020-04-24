@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="16dp"
-    android:background="#EED8AE"
+    android:background="#FFFFFF"
     tools:context=".MainActivity">
 
     <com.example.my2048.Panel2048

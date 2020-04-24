@@ -7,8 +7,10 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.Image;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -35,6 +38,7 @@ public class Panel2048 extends View {
     private boolean ismoved = false;
 
     private Paint mPaint = new Paint();
+    private Paint mbgPaint = new Paint();
 
     private AlertDialog alert = null;
     private AlertDialog.Builder builder = null;
@@ -90,6 +94,11 @@ public class Panel2048 extends View {
         b_512   = BitmapFactory.decodeResource(getResources(), R.drawable.block512);
         b_1024  = BitmapFactory.decodeResource(getResources(), R.drawable.block1024);
         b_2048  = BitmapFactory.decodeResource(getResources(), R.drawable.block2048);
+
+        mbgPaint.setColor(Color.LTGRAY);
+        mbgPaint.setAntiAlias(true);
+        mbgPaint.setDither(true);
+        mbgPaint.setStyle(Paint.Style.FILL);
 
         setOnTouchListener( new OnTouchListener() {
 
@@ -198,7 +207,9 @@ public class Panel2048 extends View {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void  onDraw(Canvas canvas){
+        canvas.drawRoundRect(0,0, getMeasuredWidth(), getMeasuredHeight(), 30.0f, 30.0f, mbgPaint);
         super.onDraw(canvas);
         drawGrid(canvas);
         searchPanel(canvas);
