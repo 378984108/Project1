@@ -9,8 +9,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,11 +41,17 @@ public class Panel2048 extends View {
 
     private Paint mPaint = new Paint();
     private Paint mbgPaint = new Paint();
+    private Canvas mCanvas;
 
     private AlertDialog alert = null;
     private AlertDialog.Builder builder = null;
 
     private Context mContext = null;
+
+    private BitmapDrawable mDrawable;
+    private long mStartTime = -1;
+    private long mStartOffset = 1000;
+    private long mDuration = 2000;
 
 //    private List<Point> block_2     = new ArrayList<>();
 //    private List<Point> block_4     = new ArrayList<>();
@@ -215,6 +223,51 @@ public class Panel2048 extends View {
         searchPanel(canvas);
         checkPanelFull();
         checkGameOver();
+        mCanvas = canvas;
+    }
+
+    private void migrate(Bitmap bitmap, long mStartX, long mEndX, long mStartY, long mEndY) {
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.block2);
+        mDrawable = new BitmapDrawable(bitmap);
+        mDrawable.setBounds(0, 0, bitmap.getWidth()/3, bitmap.getHeight()/3);
+
+//        mStartX = 0;
+//        // 右移200px
+//        mEndX = mStartX + 700;
+//        mStartY = 0;
+//        mEndY = mStartY;
+        // 初始化时间值
+        if (mStartTime == -1) {
+            mStartTime = SystemClock.uptimeMillis();
+        }
+        long curTime = SystemClock.uptimeMillis();
+        boolean done = true;
+
+        // t为一个0到1均匀变化的值
+        float t = (curTime - mStartTime - mStartOffset) / (float) mDuration;
+        t = Math.max(0, Math.min(t, 1));
+        int translateX = (int) lerp(mStartX, mEndX, t);
+        int translateY = (int) lerp(mStartY, mEndY, t);
+        if (t < 1) {
+            done = false;
+        }
+        if (0 < t && t <= 1) {
+            done = false;
+            // 保存画布，方便下次绘制
+//            canvas.save();
+            mCanvas.translate(translateX, translateY);
+            mDrawable.draw(mCanvas);
+//            canvas.restore();
+        }
+
+        if (!done) {
+            invalidate();
+        }
+    }
+
+    // 数制差
+    float lerp(float start, float end, float t) {
+        return start + (end - start) * t;
     }
 
     private void checkPanelFull() {
@@ -242,18 +295,19 @@ public class Panel2048 extends View {
         if (determine == 2048){
             isGameOver = true;
             isWin = true;
-        }else if (isPanelFull == true) {
-            isGameOver = true;
-            for (int m = 0; m < 4; m++){
-                for (int n = 0; n < 4; n++){
-                    if (blocks[m][n] == blocks[m][n+1]) {
-                        isGameOver = false;
-                    }
-                    if (blocks[m+1][n] == blocks[m][n]) {
-                        isGameOver = false;
-                    }
+        }
+        if (isPanelFull == true) {
+        isGameOver = true;
+        for (int m = 0; m < 4; m++){
+            for (int n = 0; n < 4; n++){
+                if (blocks[m][n] == blocks[m][n+1]) {
+                    isGameOver = false;
+                }
+                if (blocks[m+1][n] == blocks[m][n]) {
+                    isGameOver = false;
                 }
             }
+        }
         }
         if (isGameOver == true){
             alert = null;
@@ -303,6 +357,7 @@ public class Panel2048 extends View {
             }
         }
         addnumber();
+        numBlock = 0;
         isWin = false;
         isGameOver = false;
         isPanelFull = false;
