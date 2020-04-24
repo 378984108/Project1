@@ -224,18 +224,16 @@ public class Panel2048 extends View {
         checkPanelFull();
         checkGameOver();
         mCanvas = canvas;
+        migrate(b_2, 0, 0, 0, 4);
     }
 
     private void migrate(Bitmap bitmap, long mStartX, long mEndX, long mStartY, long mEndY) {
-//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.block2);
-        mDrawable = new BitmapDrawable(bitmap);
-        mDrawable.setBounds(0, 0, bitmap.getWidth()/3, bitmap.getHeight()/3);
 
-//        mStartX = 0;
-//        // 右移200px
-//        mEndX = mStartX + 700;
-//        mStartY = 0;
-//        mEndY = mStartY;
+        mStartX = (long) ((mStartX + 0.5) * mLineHeight);
+        mEndX = (long) ((mEndX + 0.5) * mLineHeight);
+        mStartY = (long) ((mStartY + 0.5) * mLineHeight);
+        mEndY = (long) ((mEndY + 0.5) * mLineHeight);
+
         // 初始化时间值
         if (mStartTime == -1) {
             mStartTime = SystemClock.uptimeMillis();
@@ -244,8 +242,27 @@ public class Panel2048 extends View {
         boolean done = true;
 
         // t为一个0到1均匀变化的值
-        float t = (curTime - mStartTime - mStartOffset) / (float) mDuration;
+//        float t = (curTime - mStartTime - mStartOffset) / (float) mDuration * 12;
+//        t = Math.max(0, Math.min(t, 1));
+//        int translateX = (int) lerp(mStartX, mEndX, t);
+//        int translateY = (int) lerp(mStartY, mEndY, t);
+//        if (t < 1) {
+//            done = false;
+//        }
+//        if (0 < t && t <= 1) {
+//            done = false;
+//            // 保存画布，方便下次绘制
+//            mCanvas.drawBitmap(bitmap, translateX , translateY , null);
+////            canvas.save();
+////            mCanvas.translate(translateX, translateY);
+////            mDrawable.draw(mCanvas);
+////            canvas.restore();
+//        }
+        float t = (curTime - mStartTime - mStartOffset) / (float) mDuration * 12;
         t = Math.max(0, Math.min(t, 1));
+        if (t > 1){
+            t = 1;
+        }
         int translateX = (int) lerp(mStartX, mEndX, t);
         int translateY = (int) lerp(mStartY, mEndY, t);
         if (t < 1) {
@@ -254,13 +271,15 @@ public class Panel2048 extends View {
         if (0 < t && t <= 1) {
             done = false;
             // 保存画布，方便下次绘制
-//            canvas.save();
-            mCanvas.translate(translateX, translateY);
-            mDrawable.draw(mCanvas);
-//            canvas.restore();
+//            mCanvas.drawBitmap(bitmap, translateX, translateY, null);
+            mCanvas.save();
+            mCanvas.drawBitmap(bitmap, translateX, translateY, null);
+//            mCanvas.translate(translateX, translateY);
+//            mDrawable.draw(mCanvas);
+            mCanvas.restore();
         }
 
-        if (!done) {
+            if (!done) {
             invalidate();
         }
     }
@@ -383,6 +402,7 @@ public class Panel2048 extends View {
             while (i < 5){
                 int k = i;
                 while (k != 0 && (blocks[k][j] != 0 && blocks[k-1][j] == 0)){
+
                     blocks[k-1][j] = blocks[k][j];
                     blocks[k][j] = 0;
                     ismoved = true;
