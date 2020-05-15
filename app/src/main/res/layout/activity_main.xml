@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:padding="16dp"
-    android:background="#FFFFFF"
-    tools:context=".MainActivity">
+    android:background="#FFFFFF">
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
 
     <com.example.my2048.Panel2048
+        android:id="@+id/panel"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@id/score"
+        android:layout_marginTop="100dp"/>
 
 </RelativeLayout>

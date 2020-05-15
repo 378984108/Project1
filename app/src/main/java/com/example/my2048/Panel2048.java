@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Build;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -23,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.animation.ObjectAnimator.ofFloat;
 
@@ -32,38 +35,19 @@ public class Panel2048 extends View {
     private float mLineHeight;
     private int MAX_LINE = 6;
     private int blocks[][] = new int [5][5];
-    private int direction = 0;
     private int numBlock = 0;
     private boolean isGameOver = false;
     private boolean isPanelFull = false;
     private boolean isWin = false;
     private boolean ismoved = false;
-
+    public int score = 0;
     private Paint mPaint = new Paint();
     private Paint mbgPaint = new Paint();
-    private Canvas mCanvas;
 
     private AlertDialog alert = null;
     private AlertDialog.Builder builder = null;
 
     private Context mContext = null;
-
-    private BitmapDrawable mDrawable;
-    private long mStartTime = -1;
-    private long mStartOffset = 1000;
-    private long mDuration = 2000;
-
-//    private List<Point> block_2     = new ArrayList<>();
-//    private List<Point> block_4     = new ArrayList<>();
-//    private List<Point> block_8     = new ArrayList<>();
-//    private List<Point> block_16    = new ArrayList<>();
-//    private List<Point> block_32    = new ArrayList<>();
-//    private List<Point> block_64    = new ArrayList<>();
-//    private List<Point> block_128   = new ArrayList<>();
-//    private List<Point> block_256   = new ArrayList<>();
-//    private List<Point> block_512   = new ArrayList<>();
-//    private List<Point> block_1024  = new ArrayList<>();
-//    private List<Point> block_2048  = new ArrayList<>();
 
     private Bitmap b_2;
     private Bitmap b_4;
@@ -76,10 +60,10 @@ public class Panel2048 extends View {
     private Bitmap b_512;
     private Bitmap b_1024;
     private Bitmap b_2048;
+    private Bitmap b_4096;
 
     public Panel2048(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-//        setBackgroundColor(0x44ff0000);
         blocks[0][0] = 1024;
         blocks[0][1] = 1024;
         mContext = context;
@@ -102,6 +86,7 @@ public class Panel2048 extends View {
         b_512   = BitmapFactory.decodeResource(getResources(), R.drawable.block512);
         b_1024  = BitmapFactory.decodeResource(getResources(), R.drawable.block1024);
         b_2048  = BitmapFactory.decodeResource(getResources(), R.drawable.block2048);
+        b_4096 = BitmapFactory.decodeResource( getResources(),R.drawable.block4096 );
 
         mbgPaint.setColor(Color.LTGRAY);
         mbgPaint.setAntiAlias(true);
@@ -124,21 +109,17 @@ public class Panel2048 extends View {
                         offsety = endy - starty;
                         if(Math.abs( offsetx ) > Math.abs( offsety )){
                             if (offsetx < -5) {
-                                direction = 1;
                                 Movetoleft();
                             }
                             else if (offsetx > 5){
-                                direction = 2;
                                 MovetoRight();
                             }
                         }
                         else{
                             if (offsety < -5){
-                                direction = 3;
                                 MovetoUp();
                             }
                             else if (offsety > 5){
-                                direction = 4;
                                 MovetoDown();
                             }
                         }
@@ -173,6 +154,7 @@ public class Panel2048 extends View {
                     if (blockType == 512){  canvas.drawBitmap(b_512, output_x * mLineHeight, output_y * mLineHeight, null); }
                     if (blockType == 1024){ canvas.drawBitmap(b_1024, output_x * mLineHeight, output_y * mLineHeight, null); }
                     if (blockType == 2048){ canvas.drawBitmap(b_2048, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 4096){ canvas.drawBitmap(b_4096, output_x * mLineHeight, output_y * mLineHeight, null); }
                 }
             }
         }
@@ -212,7 +194,7 @@ public class Panel2048 extends View {
         b_512   = Bitmap.createScaledBitmap(b_512,  (int) mLineHeight, (int) mLineHeight, false);
         b_1024  = Bitmap.createScaledBitmap(b_1024, (int) mLineHeight, (int) mLineHeight, false);
         b_2048  = Bitmap.createScaledBitmap(b_2048, (int) mLineHeight, (int) mLineHeight, false);
-
+        b_4096 = Bitmap.createScaledBitmap( b_4096,(int) mLineHeight,(int)mLineHeight, false );
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -223,52 +205,8 @@ public class Panel2048 extends View {
         searchPanel(canvas);
         checkPanelFull();
         checkGameOver();
-        mCanvas = canvas;
     }
 
-    private void migrate(Bitmap bitmap, long mStartX, long mEndX, long mStartY, long mEndY) {
-//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.block2);
-        mDrawable = new BitmapDrawable(bitmap);
-        mDrawable.setBounds(0, 0, bitmap.getWidth()/3, bitmap.getHeight()/3);
-
-//        mStartX = 0;
-//        // 右移200px
-//        mEndX = mStartX + 700;
-//        mStartY = 0;
-//        mEndY = mStartY;
-        // 初始化时间值
-        if (mStartTime == -1) {
-            mStartTime = SystemClock.uptimeMillis();
-        }
-        long curTime = SystemClock.uptimeMillis();
-        boolean done = true;
-
-        // t为一个0到1均匀变化的值
-        float t = (curTime - mStartTime - mStartOffset) / (float) mDuration;
-        t = Math.max(0, Math.min(t, 1));
-        int translateX = (int) lerp(mStartX, mEndX, t);
-        int translateY = (int) lerp(mStartY, mEndY, t);
-        if (t < 1) {
-            done = false;
-        }
-        if (0 < t && t <= 1) {
-            done = false;
-            // 保存画布，方便下次绘制
-//            canvas.save();
-            mCanvas.translate(translateX, translateY);
-            mDrawable.draw(mCanvas);
-//            canvas.restore();
-        }
-
-        if (!done) {
-            invalidate();
-        }
-    }
-
-    // 数制差
-    float lerp(float start, float end, float t) {
-        return start + (end - start) * t;
-    }
 
     private void checkPanelFull() {
         for (int m = 0; m < 5; m++){
@@ -361,6 +299,7 @@ public class Panel2048 extends View {
         isWin = false;
         isGameOver = false;
         isPanelFull = false;
+        score = 0;
         invalidate();
     }
 
@@ -476,7 +415,7 @@ public class Panel2048 extends View {
         ArrayList<Integer> emp = getempty();
         if (emp.size() != 0){
             int i = (int) (Math.random() * (emp.size() - 1));
-            int j = (int)(Math.random() * 8);
+            double j = (Math.random() * 10);
             while (i % 2 != 0) {
                 i = (int) (Math.random() * (emp.size() - 1));
             }
@@ -510,6 +449,7 @@ public class Panel2048 extends View {
             for(int j = 0; j <5; j++){
                 if (blocks[i][j] != 0 && i != 4){
                     if (blocks[i][j] == blocks[i+1][j]){
+                        score = score + blocks[i][j];
                         blocks[i][j] = blocks[i][j] *2;
                         ismoved = true;
                         int k = i+1;
@@ -528,6 +468,7 @@ public class Panel2048 extends View {
             for (int j = 0; j < 5; j++){
                 if (blocks[i][j] != 0 && i != 0){
                     if (blocks[i][j] == blocks[i-1][j]){
+                        score = score + blocks[i][j];
                         blocks[i][j] = blocks[i][j] *2;
                         ismoved = true;
                         int k = i - 1;
@@ -546,6 +487,7 @@ public class Panel2048 extends View {
             for (int i = 0; i < 5; i++){
                 if (blocks[i][j] != 0 && j != 4){
                     if (blocks[i][j] == blocks[i][j+1]){
+                        score = score + blocks[i][j];
                         blocks[i][j] = blocks[i][j] *2;
                         ismoved = true;
                         int k = j + 1;
@@ -564,6 +506,7 @@ public class Panel2048 extends View {
             for (int i = 0; i < 5; i++){
                 if (blocks[i][j] != 0 && j != 0){
                     if (blocks[i][j] == blocks[i][j-1]){
+                        score = score + blocks[i][j];
                         blocks[i][j] = blocks[i][j] *2;
                         ismoved = true;
                         int k = j - 1;
@@ -576,6 +519,9 @@ public class Panel2048 extends View {
                 }
             }
         }
+    }
+    public int getScore(){
+        return score;
     }
 }
 
