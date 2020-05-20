@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -322,6 +324,13 @@ public class Panel2048 extends View {
             while (i < 5){
                 int k = i;
                 while (k != 0 && (blocks[k][j] != 0 && blocks[k-1][j] == 0)){
+                    Handler handler = new Handler(  );
+                    handler.postDelayed( new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    },1000 );
                     blocks[k-1][j] = blocks[k][j];
                     blocks[k][j] = 0;
                     ismoved = true;
@@ -346,6 +355,13 @@ public class Panel2048 extends View {
             while (i >= 0){
                 int k = i;
                 while (k != 4 && (blocks[k][j] != 0 && blocks[k+1][j] == 0)){
+                    Handler handler = new Handler(  );
+                    handler.postDelayed( new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    },1000 );
                     blocks[k+1][j] = blocks[k][j];
                     blocks[k][j] = 0;
                     ismoved = true;
@@ -370,6 +386,13 @@ public class Panel2048 extends View {
             while (j < 5){
                 int k = j;
                 while (k !=0 && (blocks[i][k] != 0 && blocks[i][k-1] == 0)){
+                    Handler handler = new Handler(  );
+                    handler.postDelayed( new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    },1000 );
                     blocks[i][k-1] = blocks[i][k];
                     blocks[i][k] = 0;
                     ismoved = true;
@@ -396,6 +419,7 @@ public class Panel2048 extends View {
                 while (k != 4 &&(blocks[i][k] != 0 && blocks[i][k+1] == 0)){
                     blocks[i][k+1] = blocks[i][k];
                     blocks[i][k] = 0;
+                    invalidate();
                     ismoved = true;
                     k = k + 1;
                 }
@@ -409,7 +433,6 @@ public class Panel2048 extends View {
             addnumber();
             ismoved = false;
         }
-        invalidate();
     }
     public void addnumber(){
         ArrayList<Integer> emp = getempty();
