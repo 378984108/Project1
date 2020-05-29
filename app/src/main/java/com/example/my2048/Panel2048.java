@@ -88,7 +88,6 @@ public class Panel2048 extends View {
         b_512   = BitmapFactory.decodeResource(getResources(), R.drawable.block512);
         b_1024  = BitmapFactory.decodeResource(getResources(), R.drawable.block1024);
         b_2048  = BitmapFactory.decodeResource(getResources(), R.drawable.block2048);
-        b_4096 = BitmapFactory.decodeResource( getResources(),R.drawable.block4096 );
 
         mbgPaint.setColor(Color.LTGRAY);
         mbgPaint.setAntiAlias(true);
@@ -196,7 +195,6 @@ public class Panel2048 extends View {
         b_512   = Bitmap.createScaledBitmap(b_512,  (int) mLineHeight, (int) mLineHeight, false);
         b_1024  = Bitmap.createScaledBitmap(b_1024, (int) mLineHeight, (int) mLineHeight, false);
         b_2048  = Bitmap.createScaledBitmap(b_2048, (int) mLineHeight, (int) mLineHeight, false);
-        b_4096 = Bitmap.createScaledBitmap( b_4096,(int) mLineHeight,(int)mLineHeight, false );
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -324,13 +322,6 @@ public class Panel2048 extends View {
             while (i < 5){
                 int k = i;
                 while (k != 0 && (blocks[k][j] != 0 && blocks[k-1][j] == 0)){
-                    Handler handler = new Handler(  );
-                    handler.postDelayed( new Runnable() {
-                        @Override
-                        public void run() {
-                            invalidate();
-                        }
-                    },1000 );
                     blocks[k-1][j] = blocks[k][j];
                     blocks[k][j] = 0;
                     ismoved = true;
@@ -355,13 +346,6 @@ public class Panel2048 extends View {
             while (i >= 0){
                 int k = i;
                 while (k != 4 && (blocks[k][j] != 0 && blocks[k+1][j] == 0)){
-                    Handler handler = new Handler(  );
-                    handler.postDelayed( new Runnable() {
-                        @Override
-                        public void run() {
-                            invalidate();
-                        }
-                    },1000 );
                     blocks[k+1][j] = blocks[k][j];
                     blocks[k][j] = 0;
                     ismoved = true;
@@ -386,13 +370,6 @@ public class Panel2048 extends View {
             while (j < 5){
                 int k = j;
                 while (k !=0 && (blocks[i][k] != 0 && blocks[i][k-1] == 0)){
-                    Handler handler = new Handler(  );
-                    handler.postDelayed( new Runnable() {
-                        @Override
-                        public void run() {
-                            invalidate();
-                        }
-                    },1000 );
                     blocks[i][k-1] = blocks[i][k];
                     blocks[i][k] = 0;
                     ismoved = true;
@@ -419,7 +396,6 @@ public class Panel2048 extends View {
                 while (k != 4 &&(blocks[i][k] != 0 && blocks[i][k+1] == 0)){
                     blocks[i][k+1] = blocks[i][k];
                     blocks[i][k] = 0;
-                    invalidate();
                     ismoved = true;
                     k = k + 1;
                 }
@@ -433,6 +409,7 @@ public class Panel2048 extends View {
             addnumber();
             ismoved = false;
         }
+        invalidate();
     }
     public void addnumber(){
         ArrayList<Integer> emp = getempty();

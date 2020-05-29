@@ -12,29 +12,39 @@ import android.view.View;
 import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity {
     private TextView Score;
     private Panel2048 panel;
     private int score;
-    private Handler handler;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
-        handler = new Handler(  ){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                if (msg.what == 0){
-                    score = panel.getScore();
-                    Score.setText( score + "" );
-                    sendEmptyMessageDelayed( 0,300 );
-                }
-            }
-        };
         Score = findViewById( R.id.score );
         panel = findViewById( R.id.panel );
-        handler.sendEmptyMessageDelayed( 0,100 );
+        timer = new Timer(  );
+        timer.schedule( new TimerTask() {
+            @Override
+            public void run() {
+                Message msg = new Message();
+                msg.what = 0;
+                myhandler.sendMessage( msg );
+            }
+        },0,100 );
     }
+    private Handler myhandler = new Handler(  ){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == 0){
+                score = panel.getScore();
+                Score.setText( score + "" );
+            }
+        }
+    };
 
 }
