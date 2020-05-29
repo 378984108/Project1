@@ -9,25 +9,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static android.animation.ObjectAnimator.ofFloat;
 
@@ -62,7 +52,18 @@ public class Panel2048 extends View {
     private Bitmap b_512;
     private Bitmap b_1024;
     private Bitmap b_2048;
-    private Bitmap b_4096;
+    private Bitmap newb_2;
+    private Bitmap newb_4;
+    private Bitmap mergeb_4;
+    private Bitmap mergeb_8;
+    private Bitmap mergeb_16;
+    private Bitmap mergeb_32;
+    private Bitmap mergeb_64;
+    private Bitmap mergeb_128;
+    private Bitmap mergeb_256;
+    private Bitmap mergeb_512;
+    private Bitmap mergeb_1024;
+    private Bitmap mergeb_2048;
 
     public Panel2048(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -83,11 +84,23 @@ public class Panel2048 extends View {
         b_16    = BitmapFactory.decodeResource(getResources(), R.drawable.block16);
         b_32    = BitmapFactory.decodeResource(getResources(), R.drawable.block32);
         b_64    = BitmapFactory.decodeResource(getResources(), R.drawable.block64);
-        b_128   = BitmapFactory.decodeResource(getResources(), R.drawable.block128);
+        b_128   = BitmapFactory.decodeResource(getResources(), R.drawable.block128 );
         b_256   = BitmapFactory.decodeResource(getResources(), R.drawable.block256);
         b_512   = BitmapFactory.decodeResource(getResources(), R.drawable.block512);
         b_1024  = BitmapFactory.decodeResource(getResources(), R.drawable.block1024);
         b_2048  = BitmapFactory.decodeResource(getResources(), R.drawable.block2048);
+        newb_2 = BitmapFactory.decodeResource( getResources(), R.drawable.newblock2 );
+        newb_4 = BitmapFactory.decodeResource( getResources(), R.drawable.newblock4 );
+        mergeb_4 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock4 );
+        mergeb_8 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock8 );
+        mergeb_16 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock16 );
+        mergeb_32 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock32 );
+        mergeb_64 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock64 );
+        mergeb_128 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock128 );
+        mergeb_256 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock256 );
+        mergeb_512 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock512 );
+        mergeb_1024 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock1024 );
+        mergeb_2048 = BitmapFactory.decodeResource( getResources(), R.drawable.mergedblock2048 );
 
         mbgPaint.setColor(Color.LTGRAY);
         mbgPaint.setAntiAlias(true);
@@ -155,7 +168,18 @@ public class Panel2048 extends View {
                     if (blockType == 512){  canvas.drawBitmap(b_512, output_x * mLineHeight, output_y * mLineHeight, null); }
                     if (blockType == 1024){ canvas.drawBitmap(b_1024, output_x * mLineHeight, output_y * mLineHeight, null); }
                     if (blockType == 2048){ canvas.drawBitmap(b_2048, output_x * mLineHeight, output_y * mLineHeight, null); }
-                    if (blockType == 4096){ canvas.drawBitmap(b_4096, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 3){ canvas.drawBitmap(newb_2, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 11){ canvas.drawBitmap(newb_4, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 5){ canvas.drawBitmap(mergeb_4, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 9){ canvas.drawBitmap(mergeb_8, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 17){ canvas.drawBitmap(mergeb_16, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 33){ canvas.drawBitmap(mergeb_32, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 65){ canvas.drawBitmap(mergeb_64, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 129){ canvas.drawBitmap(mergeb_128, output_x * mLineHeight, output_y * mLineHeight, null);}
+                    if (blockType == 257){ canvas.drawBitmap(mergeb_256, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 513){ canvas.drawBitmap(mergeb_512, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 1025){ canvas.drawBitmap(mergeb_1024, output_x * mLineHeight, output_y * mLineHeight, null); }
+                    if (blockType == 2049){ canvas.drawBitmap(mergeb_2048, output_x * mLineHeight, output_y * mLineHeight, null); }
                 }
             }
         }
@@ -195,6 +219,18 @@ public class Panel2048 extends View {
         b_512   = Bitmap.createScaledBitmap(b_512,  (int) mLineHeight, (int) mLineHeight, false);
         b_1024  = Bitmap.createScaledBitmap(b_1024, (int) mLineHeight, (int) mLineHeight, false);
         b_2048  = Bitmap.createScaledBitmap(b_2048, (int) mLineHeight, (int) mLineHeight, false);
+        newb_2  = Bitmap.createScaledBitmap(newb_2, (int) mLineHeight, (int) mLineHeight, false);
+        newb_4  = Bitmap.createScaledBitmap(newb_4, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_4  = Bitmap.createScaledBitmap(mergeb_4, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_8  = Bitmap.createScaledBitmap(mergeb_8, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_16  = Bitmap.createScaledBitmap(mergeb_16, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_32  = Bitmap.createScaledBitmap(mergeb_32, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_64  = Bitmap.createScaledBitmap(mergeb_64, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_128  = Bitmap.createScaledBitmap(mergeb_128, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_256  = Bitmap.createScaledBitmap(mergeb_256, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_512  = Bitmap.createScaledBitmap(mergeb_512, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_1024  = Bitmap.createScaledBitmap(mergeb_1024, (int) mLineHeight, (int) mLineHeight, false);
+        mergeb_2048  = Bitmap.createScaledBitmap(mergeb_2048, (int) mLineHeight, (int) mLineHeight, false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -225,12 +261,12 @@ public class Panel2048 extends View {
         int determine = 0;
         for (int m = 0; m < 5; m++){
             for (int n = 0; n < 5; n++){
-                if (blocks[m][n] == 2048) {
-                    determine = 2048;
+                if (blocks[m][n] == 2049) {
+                    determine = 2049;
                 }
             }
         }
-        if (determine == 2048){
+        if (determine == 2049){
             isGameOver = true;
             isWin = true;
         }
@@ -318,6 +354,7 @@ public class Panel2048 extends View {
     public void Movetoleft(){
         int i = 1;
         int j = 0;
+        removeOddnumber();
         while (j < 5){
             while (i < 5){
                 int k = i;
@@ -342,6 +379,7 @@ public class Panel2048 extends View {
     public void MovetoRight(){
         int i = 3;
         int j = 0;
+        removeOddnumber();
         while (j < 5){
             while (i >= 0){
                 int k = i;
@@ -366,6 +404,7 @@ public class Panel2048 extends View {
     public void MovetoUp(){
         int i = 0;
         int j = 1;
+        removeOddnumber();
         while (i < 5){
             while (j < 5){
                 int k = j;
@@ -390,6 +429,7 @@ public class Panel2048 extends View {
     public void MovetoDown(){
         int i = 0;
         int j = 3;
+        removeOddnumber();
         while (i < 5){
             while (j >= 0){
                 int k = j;
@@ -419,11 +459,11 @@ public class Panel2048 extends View {
             while (i % 2 != 0) {
                 i = (int) (Math.random() * (emp.size() - 1));
             }
-            if (j <= 2){
-                blocks[emp.get( i )][emp.get( i + 1 )] = 4;
+            if (j <= 2.5){
+                blocks[emp.get( i )][emp.get( i + 1 )] = 11;
             }
-            else if (j > 2){
-                blocks[emp.get( i )][emp.get( i + 1 )] = 2;
+            else if (j > 2.5){
+                blocks[emp.get( i )][emp.get( i + 1 )] = 3;
             }
         }
     }
@@ -450,7 +490,7 @@ public class Panel2048 extends View {
                 if (blocks[i][j] != 0 && i != 4){
                     if (blocks[i][j] == blocks[i+1][j]){
                         score = score + blocks[i][j];
-                        blocks[i][j] = blocks[i][j] *2;
+                        blocks[i][j] = (blocks[i][j] *2) + 1;
                         ismoved = true;
                         int k = i+1;
                         while (k < 4){
@@ -469,7 +509,7 @@ public class Panel2048 extends View {
                 if (blocks[i][j] != 0 && i != 0){
                     if (blocks[i][j] == blocks[i-1][j]){
                         score = score + blocks[i][j];
-                        blocks[i][j] = blocks[i][j] *2;
+                        blocks[i][j] = (blocks[i][j] *2) + 1;
                         ismoved = true;
                         int k = i - 1;
                         while (k > 0){
@@ -488,7 +528,7 @@ public class Panel2048 extends View {
                 if (blocks[i][j] != 0 && j != 4){
                     if (blocks[i][j] == blocks[i][j+1]){
                         score = score + blocks[i][j];
-                        blocks[i][j] = blocks[i][j] *2;
+                        blocks[i][j] = (blocks[i][j] *2) + 1;
                         ismoved = true;
                         int k = j + 1;
                         while (k < 4){
@@ -507,7 +547,7 @@ public class Panel2048 extends View {
                 if (blocks[i][j] != 0 && j != 0){
                     if (blocks[i][j] == blocks[i][j-1]){
                         score = score + blocks[i][j];
-                        blocks[i][j] = blocks[i][j] *2;
+                        blocks[i][j] = (blocks[i][j] *2) + 1;
                         ismoved = true;
                         int k = j - 1;
                         while (k > 0){
@@ -522,6 +562,18 @@ public class Panel2048 extends View {
     }
     public int getScore(){
         return score;
+    }
+    public void removeOddnumber(){
+        for(int i = 0; i < 5; i ++){
+            for(int j = 0; j < 5; j++){
+                if (blocks[i][j] == 11){
+                    blocks[i][j] = 4;
+                }
+                if (blocks[i][j] % 2 != 0){
+                    blocks[i][j] = blocks[i][j] - 1;
+                }
+            }
+        }
     }
 }
 
